@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -12,21 +13,35 @@ namespace MongoDBDemo
     {
         static void Main(string[] args)
         {
-            var myPerson = new PersonModel
-            {
-                FirstName = "Shaswati",
-                LastName = "Sarkar",
-                PermanentAddress = new AddressModel
-                {
-                    HouseNumber = "40H",
-                    Street = "Kurt-Schumacher",
-                    PostalCode = 54885,
-                    State = "RHPLZ"
-                }
-            };
+            //var myPerson = new PersonModel
+            //{
+            //    FirstName = "Shaswati",
+            //    LastName = "Sarkar",
+            //    PermanentAddress = new AddressModel
+            //    {
+            //        HouseNumber = "40H",
+            //        Street = "Kurt-Schumacher",
+            //        PostalCode = 54885,
+            //        State = "RHPLZ"
+            //    }
+            //};
 
             MongoCRUD db = new MongoCRUD("AddressBook");
-            db.InserRecord("Users", myPerson);
+            //db.InserRecord("Users", myPerson);
+
+            var recs = db.LoadRecords<PersonModel>("Users");
+
+            foreach (var rec in recs)
+            {
+                Console.WriteLine($"{rec.Id}: {rec.FirstName} {rec.LastName}");
+
+                if(rec.PermanentAddress != null)
+                {
+                    Console.WriteLine(rec.PermanentAddress.Street);
+                }
+                Console.WriteLine();    
+            }
+
             Console.ReadLine(); 
         }
     }
@@ -62,6 +77,13 @@ namespace MongoDBDemo
         {
             var collection = db.GetCollection<T>(table);
             collection.InsertOne(record);
+        }
+
+        public List<T> LoadRecords<T> (string table)
+        {
+            var collection = db.GetCollection<T>(table);
+
+            return collection.Find(new BsonDocument()).ToList();
         }
     }
 }
