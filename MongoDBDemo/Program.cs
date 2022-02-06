@@ -29,18 +29,20 @@ namespace MongoDBDemo
             MongoCRUD db = new MongoCRUD("AddressBook");
             //db.InserRecord("Users", myPerson);
 
-            var recs = db.LoadRecords<PersonModel>("Users");
+            //var recs = db.LoadRecords<PersonModel>("Users");
 
-            foreach (var rec in recs)
-            {
-                Console.WriteLine($"{rec.Id}: {rec.FirstName} {rec.LastName}");
+            //foreach (var rec in recs)
+            //{
+            //    Console.WriteLine($"{rec.Id}: {rec.FirstName} {rec.LastName}");
 
-                if(rec.PermanentAddress != null)
-                {
-                    Console.WriteLine(rec.PermanentAddress.Street);
-                }
-                Console.WriteLine();    
-            }
+            //    if(rec.PermanentAddress != null)
+            //    {
+            //        Console.WriteLine(rec.PermanentAddress.Street);
+            //    }
+            //    Console.WriteLine();    
+            //}
+
+            var data = db.LoadRecordById<PersonModel>("Users", new Guid("c73a6ced-7298-4738-b83c-fbfcc6ea1297"));
 
             Console.ReadLine(); 
         }
@@ -84,6 +86,14 @@ namespace MongoDBDemo
             var collection = db.GetCollection<T>(table);
 
             return collection.Find(new BsonDocument()).ToList();
+        }
+
+        public T LoadRecordById<T>(string table, Guid id)
+        {
+            var collection = db.GetCollection<T>(table);
+            var filter = Builders<T>.Filter.Eq("Id", id);
+
+            return collection.Find(filter).First();
         }
     }
 }
